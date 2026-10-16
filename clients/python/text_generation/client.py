@@ -148,6 +148,9 @@ class Client:
             timeout=self.timeout,
             stream=True,
         )
+        if resp.status_code != 200:
+            raise parse_error(resp.status_code, resp.json())
+
         # iterate and print stream
         for byte_payload in resp.iter_lines():
             if byte_payload == b"\n":
@@ -159,7 +162,7 @@ class Client:
                     response = CompletionComplete(**json_payload)
                     yield response
                 except ValidationError:
-                    raise parse_error(resp.status, json_payload)
+                    raise parse_error(resp.status_code, json_payload)
 
     def chat(
         self,
@@ -270,6 +273,9 @@ class Client:
             timeout=self.timeout,
             stream=True,
         )
+        if resp.status_code != 200:
+            raise parse_error(resp.status_code, resp.json())
+
         # iterate and print stream
         for byte_payload in resp.iter_lines():
             if byte_payload == b"\n":
@@ -281,7 +287,7 @@ class Client:
                     response = ChatCompletionChunk(**json_payload)
                     yield response
                 except ValidationError:
-                    raise parse_error(resp.status, json_payload)
+                    raise parse_error(resp.status_code, json_payload)
 
     def generate(
         self,
